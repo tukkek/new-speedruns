@@ -1,0 +1,67 @@
+<title>New runs at speedrun.com</title>
+<meta charset="utf-8">
+<style>
+  .run{
+    margin:.2em;
+    display:inline-block;
+    border-radius:.25em;
+    padding:.5em;
+  }
+  
+  .rank1{background-color:gold;}
+  .rank2{background-color:silver;}
+  .rank3{background-color:darkorange;}
+</style>
+<script type='module'>
+  const API='https://www.speedrun.com/api/v1/'
+  const RATE=Math.ceil(60*1000/100)
+  
+  var next=API+'runs?status=verified&orderby=verify-date&direction=desc&embed=game,category'
+
+  function add(run){
+    let level=run['level']
+    //if(level) category+=', '+level
+    if(level) return;
+    let a=document.createElement('a')
+    a.classList.add('run')
+    a.run=run
+    a.href=run['weblink']
+    a.target='_blank'
+    let name=run['game']['data']['names']['international']
+    let category=run['category']['data']['name']
+    a.innerHTML=`${name} (${category})`
+    document.body.appendChild(a)
+  }
+  
+  async function scan(){
+    if(!next) return
+    let url=next
+    next=false
+    let runs=await fetch(url)
+    runs=await runs.json()
+    for(let r of runs['data']) add(r)
+    let page=runs['pagination']['links'][1]||runs['pagination']['links'][0]
+    next=page['uri']
+  }
+  
+  async function rank(a){
+    a.ranked=true
+    let game=a.run['game']['data']['id']
+    let category=a.run['category']['data']['id']
+    let leaderboard=await fetch(API+`leaderboards/${game}/category/${category}`)
+    leaderboard=await leaderboard.json()
+    let l=leaderboard['data']['runs'].find(l=>l['run']['id']==a.run['id'])
+    if(!l) return
+    let rank=Number(l['place'])
+    a.innerHTML=`#${rank}. ${a.innerHTML}`
+    a.classList.add('rank'+rank)
+  }
+  
+  async function tick(){
+    let a=Array.from(document.querySelectorAll('a')).find(a=>!a.ranked)
+    if(a) rank(a)
+    else scan()
+  }
+  
+  setInterval(tick,RATE)
+</script>
