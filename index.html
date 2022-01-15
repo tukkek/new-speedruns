@@ -11,17 +11,20 @@
   
   .rank1{background-color:gold;}
   .rank2{background-color:silver;}
-  .rank3{background-color:darkorange;}
+  body.toponly .run.ranked{display:none;}
+  body.toponly .run.ranked.rank1,body.toponly .run.ranked.rank2{display:inline-block;}
 </style>
+<div><label><input type='checkbox' id='filter' checked>Show only top runs</label></div>
 <script type='module'>
   const API='https://www.speedrun.com/api/v1/'
   const RATE=Math.ceil(60*1000/100)
+  const FILTER=document.querySelector('#filter')
+  const FILTERED='toponly'
   
   var next=API+'runs?status=verified&orderby=verify-date&direction=desc&embed=game,category'
 
   function add(run){
     let level=run['level']
-    //if(level) category+=', '+level
     if(level) return;
     let a=document.createElement('a')
     a.classList.add('run')
@@ -30,7 +33,12 @@
     a.target='_blank'
     let name=run['game']['data']['names']['international']
     let category=run['category']['data']['name']
-    a.innerHTML=`${name} (${category})`
+    let time=run['times']['primary_t']
+    let hours=Math.round(Math.floor(time/60/60))
+    let minutes=Math.round(Math.floor(time/60))%60
+    if(minutes<10) minutes='0'+minutes
+    time=`${hours}:${minutes}`
+    a.innerHTML=`${name} (${category}) in ${time}`
     document.body.appendChild(a)
   }
   
@@ -46,7 +54,7 @@
   }
   
   async function rank(a){
-    a.ranked=true
+    a.classList.add('ranked')
     let game=a.run['game']['data']['id']
     let category=a.run['category']['data']['id']
     let leaderboard=await fetch(API+`leaderboards/${game}/category/${category}`)
@@ -59,10 +67,20 @@
   }
   
   async function tick(){
-    let a=Array.from(document.querySelectorAll('a')).find(a=>!a.ranked)
+    let a=Array.from(document.querySelectorAll('a')).find(a=>!a.classList.contains('ranked'))
     if(a) rank(a)
     else scan()
   }
   
+  function filter(){
+    if(FILTER.checked){
+      document.body.classList.remove(FILTERED)
+    }else{
+      document.body.classList.add(FILTERED)
+    }
+  }
+  
+  document.body.classList.add(FILTERED)
   setInterval(tick,RATE)
+  FILTER.onclick=filter
 </script>
