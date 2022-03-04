@@ -1,0 +1,18 @@
+.run{
+  margin:.2em;
+  display:inline-block;
+  border-radius:.25em;
+  padding:.5em;
+}
+.rank1{background-color:gold;}
+.rank2{background-color:silver;}
+body.toponly .run.ranked{display:none;}
+body.toponly .run.ranked.rank1,body.toponly .run.ranked.rank2{display:inline-block;}
+a:visited{color:black;}
+#controls{
+  display:flex;
+  gap:3em;
+  align-items:center;
+  margin-bottom:.5em;
+}
+.hidden{display:none;}
