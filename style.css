@@ -16,3 +16,4 @@ a:visited{color:black;}
   margin-bottom:.5em;
 }
 .hidden{display:none;}
+body.toponly .run.ranked.rank1.hidden,body.toponly .run.ranked.rank2.hidden{display:none;}
