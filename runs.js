@@ -33,7 +33,7 @@ function add(run){
   minutes=minutes%60
   if(minutes<10) minutes='0'+minutes
   time=`${hours}h${minutes}m`
-  a.innerHTML=`${name} (${category}) in ${time}`
+  a.innerHTML=`${name} - ${category}, ${time}`
   hide(a)
   document.body.appendChild(a)
 }
