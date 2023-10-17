@@ -28,11 +28,11 @@ function add(run){
   let category=run['category']['data']['name']
   let time=run['times']['primary_t']
   let hours=Math.round(Math.floor(time/60/60))
-  a.hours=hours
   let minutes=Math.round(Math.floor(time/60))
   minutes=minutes%60
   if(minutes<10) minutes='0'+minutes
   time=`${hours}h${minutes}m`
+  a.hours=hours+minutes/60
   a.innerHTML=`${name} - ${category}, ${time}`
   hide(a)
   document.body.appendChild(a)
