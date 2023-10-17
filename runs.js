@@ -10,7 +10,7 @@ var urls=new Set()
 var duration=[-Number.MAX_VALUE,+Number.MAX_VALUE]
 
 function hide(a){
-  if(duration[0]<=a.minutes&&a.minutes<=duration[1])
+  if(duration[0]<=a.hours&&a.hours<=duration[1])
     a.classList.remove('hidden')
   else a.classList.add('hidden')
 }
@@ -28,8 +28,8 @@ function add(run){
   let category=run['category']['data']['name']
   let time=run['times']['primary_t']
   let hours=Math.round(Math.floor(time/60/60))
+  a.hours=hours
   let minutes=Math.round(Math.floor(time/60))
-  a.minutes=minutes
   minutes=minutes%60
   if(minutes<10) minutes='0'+minutes
   time=`${hours}h${minutes}m`
