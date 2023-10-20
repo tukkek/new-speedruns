@@ -4,15 +4,20 @@ const FILTER=document.querySelector('#filter')
 const FILTERED='toponly'
 const FROM=document.querySelector('#from')
 const TO=document.querySelector('#to')
+const COUNT=document.querySelector('#count span')
+const FORMAT=Intl.NumberFormat()
 
 var next=API+'runs?status=verified&orderby=verify-date&direction=desc&embed=game,category'
 var urls=new Set()
 var duration=[-Number.MAX_VALUE,+Number.MAX_VALUE]
 
 function hide(a){
-  if(duration[0]<=a.hours&&a.hours<=duration[1])
+  if(duration[0]<=a.hours&&a.hours<=duration[1]){
     a.classList.remove('hidden')
-  else a.classList.add('hidden')
+    return false
+  }
+  a.classList.add('hidden')
+  return true
 }
 
 function add(run){
@@ -50,6 +55,8 @@ async function scan(){
   }
   let page=runs['pagination']['links'][1]||runs['pagination']['links'][0]
   next=page['uri']
+  let nruns=document.querySelectorAll('.run').length
+  COUNT.textContent=FORMAT.format(nruns)
 }
 
 async function rank(a){
@@ -66,8 +73,9 @@ async function rank(a){
 }
 
 async function tick(){
-  let a=Array.from(document.querySelectorAll('a')).find(a=>!a.classList.contains('ranked'))
-  if(a) rank(a)
+  let runs=Array.from(document.querySelectorAll('a'))
+  let r=runs.find(r=>!r.classList.contains('ranked')&&!hide(r))
+  if(r) rank(r)
   else scan()
 }
 
