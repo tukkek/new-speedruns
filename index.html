@@ -8,6 +8,8 @@
   <div id='count'><span>0</span> runs retrieved.</div>
 </div>
 <script type='module'>
-  import * as runs from './runs.js'
+  import * as cache from './script/cache.js'
+  import * as runs from './script/runs.js'
+  cache.setup()
   runs.setup()
 </script>

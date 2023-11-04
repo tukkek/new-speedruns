@@ -1,3 +1,5 @@
+import * as cache from './cache.js'
+
 const API='https://www.speedrun.com/api/v1/'
 const RATE=Math.ceil(60*1000/100)
 const FILTER=document.querySelector('#filter')
@@ -8,8 +10,9 @@ const COUNT=document.querySelector('#count span')
 const FORMAT=Intl.NumberFormat()
 
 var next=API+'runs?status=verified&orderby=verify-date&direction=desc&embed=game,category'
-var urls=new Set()
 var duration=[-Number.MAX_VALUE,+Number.MAX_VALUE]
+var urls=new Set()
+var wait=true
 
 function hide(a){
   if(duration[0]<=a.hours&&a.hours<=duration[1]){
@@ -63,8 +66,13 @@ async function rank(a){
   a.classList.add('ranked')
   let game=a.run['game']['data']['id']
   let category=a.run['category']['data']['id']
-  let leaderboard=await fetch(API+`leaderboards/${game}/category/${category}`)
-  leaderboard=await leaderboard.json()
+  let target=`leaderboards/${game}/category/${category}`
+  let leaderboard=await cache.get(target)
+  if(!leaderboard){
+    leaderboard=await fetch(API+target)
+    leaderboard=await leaderboard.json()
+    cache.set(target,leaderboard)
+  }else wait=false
   let l=leaderboard['data']['runs'].find(l=>l['run']['id']==a.run['id'])
   if(!l) return
   let rank=Number(l['place'])
@@ -73,10 +81,13 @@ async function rank(a){
 }
 
 async function tick(){
+  wait=true
   let runs=Array.from(document.querySelectorAll('a'))
   let r=runs.find(r=>!r.classList.contains('ranked')&&!hide(r))
-  if(r) rank(r)
-  else scan()
+  if(r) await rank(r)
+  else await scan()
+  if(wait) setTimeout(tick,RATE)
+  else tick()
 }
 
 function filter(){document.body.classList.toggle(FILTERED)}
@@ -89,8 +100,8 @@ function hideall(){
 export function setup(){
   if(FILTER.checked) document.body.classList.add(FILTERED)
   hideall()
-  setInterval(tick,RATE)
   FILTER.onclick=filter
   FROM.onchange=hideall
   TO.onchange=hideall
+  tick()
 }
