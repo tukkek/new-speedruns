@@ -104,4 +104,5 @@ export function setup(){
   FROM.onchange=hideall
   TO.onchange=hideall
   tick()
+  window.onunhandledrejection=(e)=>window.alert(`Error:\n${e.reason}`)
 }
